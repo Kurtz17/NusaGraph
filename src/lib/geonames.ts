@@ -1,19 +1,9 @@
+import { getFeatureClassInfo } from '@/data/feature-classes';
+import { getFeatureCodeInfo } from '@/data/feature-codes';
 import { bindingValue } from '@/lib/sparql-client';
 import type { GeographicEntity } from '@/types/geographic';
 
 type SparqlRow = Record<string, { value: string }>;
-
-const featureTypes: Record<string, string> = {
-  A: 'Administrative region',
-  H: 'Hydrographic feature',
-  L: 'Area',
-  P: 'Populated place',
-  R: 'Road or railroad',
-  S: 'Spot feature',
-  T: 'Hypsographic feature',
-  U: 'Undersea feature',
-  V: 'Vegetation feature',
-};
 
 export const geonamesPrefixes = `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX gn: <http://www.geonames.org/ontology#>
@@ -63,6 +53,9 @@ export function mapGeonamesRow(row: SparqlRow): GeographicEntity {
   const adminCode1 = bindingValue(row, 'adminCode1');
   const adminCode2 = bindingValue(row, 'adminCode2');
   const parentFeature = bindingValue(row, 'parentFeature');
+  const featureClassInfo = getFeatureClassInfo(featureClass);
+  const featureCodeInfo = getFeatureCodeInfo(featureClass, featureCode);
+  const featureType = featureClassInfo?.name ?? 'GeoNames feature';
 
   return {
     id: geonameId,
@@ -78,15 +71,17 @@ export function mapGeonamesRow(row: SparqlRow): GeographicEntity {
     timezone: bindingValue(row, 'timezone') ?? 'Unknown',
     featureClass,
     featureCode,
-    featureType: featureTypes[featureClass] ?? 'GeoNames feature',
+    featureType,
+    featureCodeName: featureCodeInfo?.name,
+    featureCodeDescription: featureCodeInfo?.description,
     province: adminCode1 ? `Admin ${adminCode1}` : undefined,
     population: numberValue(bindingValue(row, 'population')),
     parentFeature:
       parentFeature ?? (adminCode2 ? `Admin ${adminCode2}` : undefined),
     description: [
       bindingValue(row, 'name') ?? 'This feature',
-      featureTypes[featureClass]
-        ? `is a ${featureTypes[featureClass].toLowerCase()}`
+      featureType
+        ? `is a ${featureType.toLowerCase()}`
         : 'is a GeoNames feature',
       adminCode1 ? `in Indonesian admin area ${adminCode1}` : 'in Indonesia',
     ].join(' '),

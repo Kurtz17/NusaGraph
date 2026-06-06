@@ -6,11 +6,13 @@ export type GeographicEntity = {
   alternateNames: string[];
   latitude: number;
   longitude: number;
-  countryCode: "ID";
+  countryCode: 'ID';
   timezone: string;
   featureClass: string;
   featureCode: string;
   featureType: string;
+  featureCodeName?: string;
+  featureCodeDescription?: string;
   province?: string;
   population?: number;
   parentFeature?: string;
@@ -39,4 +41,20 @@ export type SparqlTemplate = {
   name: string;
   description: string;
   query: string;
+};
+
+export type SearchFacetOption = {
+  value: string;
+  label: string;
+  description?: string;
+  total?: number;
+};
+
+export type FeatureCodeFacetOption = SearchFacetOption & {
+  featureClass: string;
+};
+
+export type SearchFacets = {
+  provinces: SearchFacetOption[];
+  featureClasses: SearchFacetOption[];
 };

@@ -1,3 +1,5 @@
+import { featureClassInfo, getFeatureClassInfo } from '@/data/feature-classes';
+import { getFeatureCodeInfo } from '@/data/feature-codes';
 import {
   entitySelectClause,
   escapeSparqlString,
@@ -10,22 +12,16 @@ import {
   sparqlRowsToObjects,
 } from '@/lib/sparql-client';
 import type {
+  FeatureCodeFacetOption,
   GeographicEntity,
   GraphStats,
+  SearchFacets,
   SearchFilters,
 } from '@/types/geographic';
 
-const featureClassByType: Record<string, string> = {
-  'Administrative region': 'A',
-  'Hydrographic feature': 'H',
-  Area: 'L',
-  'Populated place': 'P',
-  'Road or railroad': 'R',
-  'Spot feature': 'S',
-  'Hypsographic feature': 'T',
-  'Undersea feature': 'U',
-  'Vegetation feature': 'V',
-};
+const featureClassByType = Object.fromEntries(
+  Object.entries(featureClassInfo).map(([code, info]) => [info.name, code]),
+);
 
 function filterClauses(query: string, filters: SearchFilters) {
   const clauses: string[] = [];
@@ -215,6 +211,85 @@ WHERE {
     totalAdministrativeRegions,
     totalSemanticRelations,
   };
+}
+
+export async function getSearchFacets(): Promise<SearchFacets> {
+  const [adminResult, classResult] = await Promise.all([
+    executeSparqlQuery(`${geonamesPrefixes}
+SELECT ?adminCode1 (COUNT(?place) AS ?total)
+WHERE {
+  ?place rdf:type gn:Feature ;
+         gn:countryCode "ID" ;
+         gn:adminCode1 ?adminCode1 .
+}
+GROUP BY ?adminCode1
+ORDER BY ?adminCode1`),
+    executeSparqlQuery(`${geonamesPrefixes}
+SELECT ?featureClassCode (COUNT(?place) AS ?total)
+WHERE {
+  ?place rdf:type gn:Feature ;
+         gn:countryCode "ID" ;
+         gn:featureClass ?featureClass .
+
+  BIND(REPLACE(STR(?featureClass), "^.*#", "") AS ?featureClassCode)
+}
+GROUP BY ?featureClassCode
+ORDER BY ?featureClassCode`),
+  ]);
+
+  return {
+    provinces: adminResult.results.bindings.map((row) => {
+      const value = bindingValue(row, 'adminCode1') ?? '';
+
+      return {
+        value: `Admin ${value}`,
+        label: `Admin ${value}`,
+        total: Number(bindingValue(row, 'total') ?? 0),
+      };
+    }),
+    featureClasses: classResult.results.bindings.map((row) => {
+      const value = bindingValue(row, 'featureClassCode') ?? '';
+      const info = getFeatureClassInfo(value);
+
+      return {
+        value,
+        label: info ? `${value} - ${info.name}` : value,
+        description: info?.description,
+        total: Number(bindingValue(row, 'total') ?? 0),
+      };
+    }),
+  };
+}
+
+export async function getFeatureCodeFacets(
+  featureClass: string,
+): Promise<FeatureCodeFacetOption[]> {
+  const safeFeatureClass = escapeSparqlString(featureClass);
+  const result = await executeSparqlQuery(`${geonamesPrefixes}
+SELECT ?featureCodeCode (COUNT(?place) AS ?total)
+WHERE {
+  ?place rdf:type gn:Feature ;
+         gn:countryCode "ID" ;
+         gn:featureClass <https://www.geonames.org/ontology#${safeFeatureClass}> ;
+         gn:featureCode ?featureCode .
+
+  BIND(REPLACE(REPLACE(STR(?featureCode), "^.*#", ""), "^[^.]+\\\\.", "") AS ?featureCodeCode)
+}
+GROUP BY ?featureCodeCode
+ORDER BY DESC(?total)`);
+
+  return result.results.bindings.map((row) => {
+    const value = bindingValue(row, 'featureCodeCode') ?? '';
+    const info = getFeatureCodeInfo(featureClass, value);
+
+    return {
+      value,
+      featureClass,
+      label: info ? `${value} - ${info.name}` : value,
+      description: info?.description,
+      total: Number(bindingValue(row, 'total') ?? 0),
+    };
+  });
 }
 
 export async function runSparqlQuery(

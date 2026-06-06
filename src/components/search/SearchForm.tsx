@@ -7,44 +7,77 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { SectionHeader } from '@/components/ui/SectionHeader';
-import { searchEntitiesFromApi } from '@/lib/client-api';
-import { uniqueValues } from '@/lib/utils';
+import {
+  getFeatureCodeFacetsFromApi,
+  searchEntitiesFromApi,
+} from '@/lib/client-api';
 import type {
+  FeatureCodeFacetOption,
   GeographicEntity,
+  SearchFacets,
   SearchFilters as SearchFilterValues,
 } from '@/types/geographic';
 import { AlertCircle, RotateCcw, Search } from 'lucide-react';
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 
 type SearchFormProps = {
   initialEntities: GeographicEntity[];
+  initialFacets: SearchFacets;
 };
 
-export function SearchForm({ initialEntities }: SearchFormProps) {
+export function SearchForm({
+  initialEntities,
+  initialFacets,
+}: SearchFormProps) {
   const [query, setQuery] = useState('');
   const [filters, setFilters] = useState<SearchFilterValues>({});
   const [results, setResults] = useState(initialEntities);
   const [selectedEntity, setSelectedEntity] = useState<GeographicEntity | null>(
     initialEntities[0] ?? null,
   );
+  const [featureCodes, setFeatureCodes] = useState<FeatureCodeFacetOption[]>(
+    [],
+  );
+  const [isLoadingFeatureCodes, setIsLoadingFeatureCodes] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const filterOptions = useMemo(
-    () => ({
-      provinces: uniqueValues(initialEntities.map((entity) => entity.province)),
-      featureTypes: uniqueValues(
-        initialEntities.map((entity) => entity.featureType),
-      ),
-      featureClasses: uniqueValues(
-        initialEntities.map((entity) => entity.featureClass),
-      ),
-      featureCodes: uniqueValues(
-        initialEntities.map((entity) => entity.featureCode),
-      ),
-    }),
-    [initialEntities],
-  );
+  useEffect(() => {
+    let isCurrent = true;
+
+    async function loadFeatureCodes() {
+      if (!filters.featureClass) {
+        setFeatureCodes([]);
+        return;
+      }
+
+      setIsLoadingFeatureCodes(true);
+
+      try {
+        const nextFeatureCodes = await getFeatureCodeFacetsFromApi(
+          filters.featureClass,
+        );
+
+        if (isCurrent) {
+          setFeatureCodes(nextFeatureCodes);
+        }
+      } catch {
+        if (isCurrent) {
+          setFeatureCodes([]);
+        }
+      } finally {
+        if (isCurrent) {
+          setIsLoadingFeatureCodes(false);
+        }
+      }
+    }
+
+    loadFeatureCodes();
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [filters.featureClass]);
 
   async function handleSearch(event?: FormEvent<HTMLFormElement>) {
     event?.preventDefault();
@@ -112,7 +145,12 @@ export function SearchForm({ initialEntities }: SearchFormProps) {
 
             <SearchFilters
               filters={filters}
-              options={filterOptions}
+              options={{
+                provinces: initialFacets.provinces,
+                featureClasses: initialFacets.featureClasses,
+                featureCodes,
+              }}
+              isLoadingFeatureCodes={isLoadingFeatureCodes}
               onChange={setFilters}
             />
           </form>

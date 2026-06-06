@@ -1,4 +1,8 @@
-import type { GeographicEntity, SearchFilters } from '@/types/geographic';
+import type {
+  FeatureCodeFacetOption,
+  GeographicEntity,
+  SearchFilters,
+} from '@/types/geographic';
 
 async function readJson<T>(response: Response): Promise<T> {
   if (!response.ok) {
@@ -41,4 +45,15 @@ export async function runSparqlQueryFromApi(
   });
 
   return readJson<Record<string, string | number>[]>(response);
+}
+
+export async function getFeatureCodeFacetsFromApi(
+  featureClass: string,
+): Promise<FeatureCodeFacetOption[]> {
+  const params = new URLSearchParams({ featureClass });
+  const response = await fetch(
+    `/api/facets/feature-codes?${params.toString()}`,
+  );
+
+  return readJson<FeatureCodeFacetOption[]>(response);
 }

@@ -1,21 +1,22 @@
-import { Badge } from "@/components/ui/Badge";
-import { Card } from "@/components/ui/Card";
-import { formatCoordinate, formatNumber } from "@/lib/utils";
-import type { GeographicEntity } from "@/types/geographic";
+import { Badge } from '@/components/ui/Badge';
+import { Card } from '@/components/ui/Card';
+import { formatCoordinate, formatNumber } from '@/lib/utils';
+import type { GeographicEntity } from '@/types/geographic';
 
 type EntityMetadataProps = {
   entity: GeographicEntity;
 };
 
 const metadataRows = (entity: GeographicEntity) => [
-  ["GeoNames ID", entity.geonameId],
-  ["Latitude", formatCoordinate(entity.latitude)],
-  ["Longitude", formatCoordinate(entity.longitude)],
-  ["Country code", entity.countryCode],
-  ["Timezone", entity.timezone],
-  ["Province / admin area", entity.province ?? "Unknown"],
-  ["Population", formatNumber(entity.population)],
-  ["Parent feature", entity.parentFeature ?? "Unknown"],
+  ['GeoNames ID', entity.geonameId],
+  ['Latitude', formatCoordinate(entity.latitude)],
+  ['Longitude', formatCoordinate(entity.longitude)],
+  ['Country code', entity.countryCode],
+  ['Timezone', entity.timezone],
+  ['Province / admin area', entity.province ?? 'Unknown'],
+  ['Population', formatNumber(entity.population)],
+  ['Parent feature', entity.parentFeature ?? 'Unknown'],
+  ['Feature code meaning', entity.featureCodeName ?? 'Unknown'],
 ];
 
 export function EntityMetadata({ entity }: EntityMetadataProps) {
@@ -37,6 +38,17 @@ export function EntityMetadata({ entity }: EntityMetadataProps) {
           </div>
         ))}
       </dl>
+
+      {entity.featureCodeDescription ? (
+        <div className="mt-4 rounded-2xl bg-teal-50 p-4 ring-1 ring-teal-100">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-teal-700">
+            Feature code description
+          </p>
+          <p className="mt-2 text-sm leading-6 text-slate-800">
+            {entity.featureCodeDescription}
+          </p>
+        </div>
+      ) : null}
     </Card>
   );
 }
