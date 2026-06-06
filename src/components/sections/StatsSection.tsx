@@ -1,30 +1,44 @@
-import { BarChart3, GitFork, Landmark, Map, Mountain, Rows3 } from "lucide-react";
-import { Card } from "@/components/ui/Card";
-import { SectionHeader } from "@/components/ui/SectionHeader";
-import { formatNumber } from "@/lib/utils";
-import type { GraphStats } from "@/types/geographic";
+import { Card } from '@/components/ui/Card';
+import { SectionHeader } from '@/components/ui/SectionHeader';
+import { formatNumber } from '@/lib/utils';
+import type { GraphStats } from '@/types/geographic';
+import {
+  BarChart3,
+  GitFork,
+  Landmark,
+  Map,
+  Mountain,
+  Rows3,
+} from 'lucide-react';
 
 type StatsSectionProps = {
   stats: GraphStats;
 };
 
 const statMeta = [
-  { key: "totalEntities", label: "Total entities", icon: Map },
-  { key: "totalTriples", label: "Total RDF triples", icon: Rows3 },
-  { key: "totalProvinces", label: "Total provinces", icon: Landmark },
-  { key: "totalNaturalFeatures", label: "Natural features", icon: Mountain },
-  { key: "totalAdministrativeRegions", label: "Administrative regions", icon: BarChart3 },
-  { key: "totalSemanticRelations", label: "Semantic relations", icon: GitFork },
+  { key: 'totalEntities', label: 'Total entities', icon: Map },
+  { key: 'totalTriples', label: 'Total RDF triples', icon: Rows3 },
+  { key: 'totalProvinces', label: 'Total provinces', icon: Landmark },
+  { key: 'totalNaturalFeatures', label: 'Natural features', icon: Mountain },
+  {
+    key: 'totalAdministrativeRegions',
+    label: 'Administrative regions',
+    icon: BarChart3,
+  },
+  { key: 'totalSemanticRelations', label: 'Semantic relations', icon: GitFork },
 ] as const;
 
 export function StatsSection({ stats }: StatsSectionProps) {
   return (
-    <section id="stats" className="border-b border-slate-200 bg-white px-6 py-20">
+    <section
+      id="stats"
+      className="border-b border-slate-200 bg-white px-6 py-20"
+    >
       <div className="mx-auto max-w-7xl">
         <SectionHeader
           eyebrow="Knowledge graph stats"
           title="A compact view of Indonesia's semantic geography layer"
-          description="The current prototype uses mock figures shaped like the future backend response, so the UI can be integrated with real RDF and SPARQL services later."
+          description="Live figures derived from the RDF dataset through the Fuseki SPARQL endpoint."
         />
 
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

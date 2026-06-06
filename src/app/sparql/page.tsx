@@ -1,11 +1,11 @@
-import type { Metadata } from "next";
-import { Footer } from "@/components/layout/Footer";
-import { Navbar } from "@/components/layout/Navbar";
-import { SparqlExplorer } from "@/components/sparql/SparqlExplorer";
+import { Footer } from '@/components/layout/Footer';
+import { Navbar } from '@/components/layout/Navbar';
+import { SparqlExplorer } from '@/components/sparql/SparqlExplorer';
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "SPARQL Explorer | NusaGraph",
-  description: "Run mock SPARQL query templates for NusaGraph.",
+  title: 'SPARQL Explorer | NusaGraph',
+  description: 'Run SPARQL query templates for NusaGraph.',
 };
 
 export default function SparqlPage() {

@@ -1,20 +1,20 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowLeft, SlidersHorizontal } from "lucide-react";
-import { KnowledgeGraphWorkspace } from "@/components/graph/KnowledgeGraphWorkspace";
-import { Footer } from "@/components/layout/Footer";
-import { Navbar } from "@/components/layout/Navbar";
-import { Badge } from "@/components/ui/Badge";
-import { searchEntities } from "@/lib/api";
+import { KnowledgeGraphWorkspace } from '@/components/graph/KnowledgeGraphWorkspace';
+import { Footer } from '@/components/layout/Footer';
+import { Navbar } from '@/components/layout/Navbar';
+import { Badge } from '@/components/ui/Badge';
+import { searchEntities } from '@/lib/api';
+import { ArrowLeft, SlidersHorizontal } from 'lucide-react';
+import type { Metadata } from 'next';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: "Knowledge Graph | NusaGraph",
+  title: 'Knowledge Graph | NusaGraph',
   description:
-    "Explore semantic relationships between Indonesian geographic entities in NusaGraph.",
+    'Explore semantic relationships between Indonesian geographic entities in NusaGraph.',
 };
 
 export default async function KnowledgeGraphPage() {
-  const entities = await searchEntities("", {});
+  const entities = await searchEntities('', {});
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
@@ -55,7 +55,7 @@ export default async function KnowledgeGraphPage() {
               <Badge tone="slate">Show labels</Badge>
               <Badge tone="slate">Entity relations</Badge>
               <Badge tone="slate">Feature codes</Badge>
-              <Badge tone="amber">Mock graph</Badge>
+              <Badge tone="amber">Fuseki-backed graph</Badge>
             </div>
             <KnowledgeGraphWorkspace entities={entities} />
           </div>

@@ -1,34 +1,34 @@
-"use client";
+'use client';
 
-import { FormEvent, useMemo, useState } from "react";
-import { AlertCircle, RotateCcw, Search } from "lucide-react";
-import { InteractiveMap } from "@/components/map/InteractiveMap";
-import { ResultsList } from "@/components/results/ResultsList";
-import { SearchFilters } from "@/components/search/SearchFilters";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
-import { Input } from "@/components/ui/Input";
-import { SectionHeader } from "@/components/ui/SectionHeader";
-import { searchEntities } from "@/lib/api";
-import { uniqueValues } from "@/lib/utils";
+import { InteractiveMap } from '@/components/map/InteractiveMap';
+import { ResultsList } from '@/components/results/ResultsList';
+import { SearchFilters } from '@/components/search/SearchFilters';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { SectionHeader } from '@/components/ui/SectionHeader';
+import { searchEntitiesFromApi } from '@/lib/client-api';
+import { uniqueValues } from '@/lib/utils';
 import type {
   GeographicEntity,
   SearchFilters as SearchFilterValues,
-} from "@/types/geographic";
+} from '@/types/geographic';
+import { AlertCircle, RotateCcw, Search } from 'lucide-react';
+import { FormEvent, useMemo, useState } from 'react';
 
 type SearchFormProps = {
   initialEntities: GeographicEntity[];
 };
 
 export function SearchForm({ initialEntities }: SearchFormProps) {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const [filters, setFilters] = useState<SearchFilterValues>({});
   const [results, setResults] = useState(initialEntities);
   const [selectedEntity, setSelectedEntity] = useState<GeographicEntity | null>(
     initialEntities[0] ?? null,
   );
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   const filterOptions = useMemo(
     () => ({
@@ -48,20 +48,16 @@ export function SearchForm({ initialEntities }: SearchFormProps) {
 
   async function handleSearch(event?: FormEvent<HTMLFormElement>) {
     event?.preventDefault();
-    setError("");
+    setError('');
     setIsLoading(true);
 
     try {
-      if (query.trim().toLowerCase() === "error") {
-        throw new Error("Dummy error state triggered.");
-      }
-
-      const nextResults = await searchEntities(query, filters);
+      const nextResults = await searchEntitiesFromApi(query, filters);
       setResults(nextResults);
       setSelectedEntity(nextResults[0] ?? null);
     } catch {
       setError(
-        "Search service is temporarily unavailable. This is a dummy error state for the prototype.",
+        'Search service is temporarily unavailable. Please check the Fuseki endpoint and try again.',
       );
       setResults([]);
       setSelectedEntity(null);
@@ -71,15 +67,18 @@ export function SearchForm({ initialEntities }: SearchFormProps) {
   }
 
   function handleReset() {
-    setQuery("");
+    setQuery('');
     setFilters({});
     setResults(initialEntities);
     setSelectedEntity(initialEntities[0] ?? null);
-    setError("");
+    setError('');
   }
 
   return (
-    <section id="search" className="border-b border-slate-200 bg-white px-6 py-20">
+    <section
+      id="search"
+      className="border-b border-slate-200 bg-white px-6 py-20"
+    >
       <div className="mx-auto max-w-7xl">
         <SectionHeader
           eyebrow="Semantic search"
@@ -130,7 +129,7 @@ export function SearchForm({ initialEntities }: SearchFormProps) {
           <div>
             <div className="mb-4 flex items-center justify-between gap-3">
               <p className="text-sm font-semibold text-slate-700">
-                {results.length} result{results.length === 1 ? "" : "s"}
+                {results.length} result{results.length === 1 ? '' : 's'}
               </p>
               <p className="text-xs text-slate-500">
                 Click a card to focus the map.

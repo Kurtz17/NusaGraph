@@ -1,4 +1,4 @@
-import { Card } from "@/components/ui/Card";
+import { Card } from '@/components/ui/Card';
 
 type SparqlResultTableProps = {
   rows: Record<string, string | number>[];
@@ -8,7 +8,7 @@ export function SparqlResultTable({ rows }: SparqlResultTableProps) {
   if (rows.length === 0) {
     return (
       <Card className="p-6 text-sm text-slate-600">
-        Run a query template to preview mock SPARQL results.
+        Run a query template to preview SPARQL results.
       </Card>
     );
   }
