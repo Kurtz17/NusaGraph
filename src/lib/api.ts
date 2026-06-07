@@ -129,7 +129,7 @@ async function count(query: string) {
 export async function searchEntities(
   query: string,
   filters: SearchFilters = {},
-  limit = query.trim() ? 50 : 10,
+  limit = query.trim() ? 50 : 50,
 ): Promise<GeographicEntity[]> {
   const result = await executeSparqlQuery(
     buildSearchQuery(query, filters, limit),
