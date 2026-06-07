@@ -30,10 +30,7 @@ const statMeta = [
 
 export function StatsSection({ stats }: StatsSectionProps) {
   return (
-    <section
-      id="stats"
-      className="border-b border-slate-200 bg-white px-6 py-20"
-    >
+    <section id="stats" className="bg-white px-6 py-20">
       <div className="mx-auto max-w-7xl">
         <SectionHeader
           eyebrow="Knowledge graph stats"
