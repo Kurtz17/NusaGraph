@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default async function SearchPage() {
   const [initialEntities, initialFacets] = await Promise.all([
-    searchEntities('', {}, 10),
+    searchEntities('', {}, 3, 0),
     getSearchFacets(),
   ]);
 

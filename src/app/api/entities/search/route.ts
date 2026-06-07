@@ -5,6 +5,10 @@ import { NextRequest } from 'next/server';
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
   const minPopulation = params.get('minPopulation');
+
+  const limit = Number(params.get('limit') ?? 3);
+  const offset = Number(params.get('offset') ?? 0);
+
   const filters: SearchFilters = {
     province: params.get('province') ?? undefined,
     featureType: params.get('featureType') ?? undefined,
@@ -14,7 +18,12 @@ export async function GET(request: NextRequest) {
   };
 
   try {
-    const entities = await searchEntities(params.get('q') ?? '', filters);
+    const entities = await searchEntities(
+      params.get('q') ?? '',
+      filters,
+      limit,
+      offset,
+    );
 
     return Response.json(entities);
   } catch (error) {

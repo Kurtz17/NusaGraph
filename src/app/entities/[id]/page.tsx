@@ -5,19 +5,13 @@ import { Navbar } from "@/components/layout/Navbar";
 import { InteractiveMap } from "@/components/map/InteractiveMap";
 import { getEntityById, searchEntities } from "@/lib/api";
 
+export const dynamic = 'force-dynamic';
+
 type EntityPageProps = {
   params: Promise<{
     id: string;
   }>;
 };
-
-export async function generateStaticParams() {
-  const entities = await searchEntities("", {});
-
-  return entities.map((entity) => ({
-    id: entity.id,
-  }));
-}
 
 export async function generateMetadata({ params }: EntityPageProps) {
   const { id } = await params;

@@ -5,7 +5,7 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { searchEntities } from "@/lib/api";
 
 export async function KnowledgeGraphSection() {
-  const entities = await searchEntities("", {});
+  const { data: entities } = await searchEntities("", {}, 9, 0);
 
   return (
     <section id="knowledge-graph" className="border-b border-slate-200 bg-slate-50 px-6 py-20">

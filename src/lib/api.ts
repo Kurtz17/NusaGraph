@@ -71,6 +71,7 @@ function buildSearchQuery(
   query: string,
   filters: SearchFilters,
   limit: number,
+  offset = 0,
 ) {
   const hasKeyword = Boolean(query.trim());
   const orderClause = hasKeyword ? 'ORDER BY LCASE(STR(?name))' : '';
@@ -102,7 +103,30 @@ WHERE {
   BIND(REPLACE(REPLACE(STR(?featureCode), "^.*#", ""), "^[^.]+\\\\.", "") AS ?featureCodeCode)
 }
 ${orderClause}
-LIMIT ${clampLimit(limit)}`;
+LIMIT ${clampLimit(limit)}
+OFFSET ${Math.max(0, offset)}`;
+}
+
+function buildSearchCountQuery(query: string, filters: SearchFilters) {
+  return `${geonamesPrefixes}
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT (COUNT(DISTINCT ?place) AS ?count)
+WHERE {
+  ?place rdf:type gn:Feature ;
+         gn:name ?name ;
+         gn:countryCode "ID" ;
+         gn:featureClass ?featureClass ;
+         gn:featureCode ?featureCode ;
+         geo:lat ?lat ;
+         geo:long ?long .
+
+  OPTIONAL { ?place gn:population ?population . }
+  OPTIONAL { ?place gn:adminCode1 ?adminCode1 . }
+  OPTIONAL { ?place gn:adminCode2 ?adminCode2 . }
+
+  ${filterClauses(query, filters)}
+}`;
 }
 
 function buildEntityQuery(id: string) {
@@ -126,16 +150,28 @@ async function count(query: string) {
   return Number(value ?? 0);
 }
 
+export type SearchEntitiesResponse = {
+  data: GeographicEntity[];
+  hasNextPage: boolean;
+};
+
+
 export async function searchEntities(
   query: string,
   filters: SearchFilters = {},
-  limit = query.trim() ? 50 : 50,
-): Promise<GeographicEntity[]> {
+  limit = 3,
+  offset = 0,
+): Promise<SearchEntitiesResponse> {
   const result = await executeSparqlQuery(
-    buildSearchQuery(query, filters, limit),
+    buildSearchQuery(query, filters, limit + 1, offset),
   );
 
-  return result.results.bindings.map(mapGeonamesRow);
+  const rows = result.results.bindings.map(mapGeonamesRow);
+
+  return {
+    data: rows.slice(0, limit),
+    hasNextPage: rows.length > limit,
+  };
 }
 
 export async function getEntityById(

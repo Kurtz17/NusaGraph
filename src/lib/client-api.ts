@@ -3,6 +3,7 @@ import type {
   GeographicEntity,
   SearchFilters,
 } from '@/types/geographic';
+import type { SearchEntitiesResponse } from '@/lib/api';
 
 async function readJson<T>(response: Response): Promise<T> {
   if (!response.ok) {
@@ -15,12 +16,17 @@ async function readJson<T>(response: Response): Promise<T> {
 export async function searchEntitiesFromApi(
   query: string,
   filters: SearchFilters = {},
-): Promise<GeographicEntity[]> {
+  limit = 3,
+  offset = 0,
+): Promise<SearchEntitiesResponse> {
   const params = new URLSearchParams();
 
   if (query.trim()) {
     params.set('q', query.trim());
   }
+
+  params.set('limit', String(limit));
+  params.set('offset', String(offset));
 
   for (const [key, value] of Object.entries(filters)) {
     if (value !== undefined && value !== '') {
@@ -30,7 +36,7 @@ export async function searchEntitiesFromApi(
 
   const response = await fetch(`/api/entities/search?${params.toString()}`);
 
-  return readJson<GeographicEntity[]>(response);
+  return readJson<SearchEntitiesResponse>(response);
 }
 
 export async function runSparqlQueryFromApi(

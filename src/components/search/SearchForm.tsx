@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { SectionHeader } from '@/components/ui/SectionHeader';
+import type { SearchEntitiesResponse } from '@/lib/api';
 import {
   getFeatureCodeFacetsFromApi,
   searchEntitiesFromApi,
@@ -21,9 +22,11 @@ import { AlertCircle, RotateCcw, Search } from 'lucide-react';
 import { FormEvent, useEffect, useState } from 'react';
 
 type SearchFormProps = {
-  initialEntities: GeographicEntity[];
+  initialEntities: SearchEntitiesResponse;
   initialFacets: SearchFacets;
 };
+
+const ITEMS_PER_PAGE = 3;
 
 export function SearchForm({
   initialEntities,
@@ -31,9 +34,13 @@ export function SearchForm({
 }: SearchFormProps) {
   const [query, setQuery] = useState('');
   const [filters, setFilters] = useState<SearchFilterValues>({});
-  const [results, setResults] = useState(initialEntities);
+  const [results, setResults] = useState(initialEntities.data);
+  const [hasNextPage, setHasNextPage] = useState(
+    initialEntities.hasNextPage,
+  );
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedEntity, setSelectedEntity] = useState<GeographicEntity | null>(
-    initialEntities[0] ?? null,
+    initialEntities.data[0] ?? null,
   );
   const [featureCodes, setFeatureCodes] = useState<FeatureCodeFacetOption[]>(
     [],
@@ -85,15 +92,51 @@ export function SearchForm({
     setIsLoading(true);
 
     try {
-      const nextResults = await searchEntitiesFromApi(query, filters);
-      setResults(nextResults);
-      setSelectedEntity(nextResults[0] ?? null);
+      const nextResults = await searchEntitiesFromApi(
+        query,
+        filters,
+        ITEMS_PER_PAGE,
+        0,
+      );
+
+      setResults(nextResults.data);
+      setHasNextPage(nextResults.hasNextPage);
+      setCurrentPage(1);
+      setSelectedEntity(nextResults.data[0] ?? null);
     } catch {
       setError(
         'Search service is temporarily unavailable. Please check the Fuseki endpoint and try again.',
       );
       setResults([]);
+      setHasNextPage(false);
       setSelectedEntity(null);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function handlePageChange(nextPage: number) {
+    setError('');
+    setIsLoading(true);
+
+    try {
+      const offset = (nextPage - 1) * ITEMS_PER_PAGE;
+
+      const nextResults = await searchEntitiesFromApi(
+        query,
+        filters,
+        ITEMS_PER_PAGE,
+        offset,
+      );
+
+      setResults(nextResults.data);
+      setHasNextPage(nextResults.hasNextPage);
+      setCurrentPage(nextPage);
+      setSelectedEntity(nextResults.data[0] ?? null);
+    } catch {
+      setError(
+        'Search service is temporarily unavailable. Please check the Fuseki endpoint and try again.',
+      );
     } finally {
       setIsLoading(false);
     }
@@ -102,8 +145,10 @@ export function SearchForm({
   function handleReset() {
     setQuery('');
     setFilters({});
-    setResults(initialEntities);
-    setSelectedEntity(initialEntities[0] ?? null);
+    setResults(initialEntities.data);
+    setHasNextPage(initialEntities.hasNextPage);
+    setCurrentPage(1);
+    setSelectedEntity(initialEntities.data[0] ?? null);
     setError('');
   }
 
@@ -167,19 +212,47 @@ export function SearchForm({
           <div>
             <div className="mb-4 flex items-center justify-between gap-3">
               <p className="text-sm font-semibold text-slate-700">
-                {results.length} result{results.length === 1 ? '' : 's'}
+                Showing {results.length} result{results.length === 1 ? '' : 's'}
               </p>
               <p className="text-xs text-slate-500">
                 Click a card to focus the map.
               </p>
             </div>
+
             <ResultsList
               results={results}
               selectedId={selectedEntity?.id}
               isLoading={isLoading}
               onSelect={setSelectedEntity}
             />
+
+            {currentPage > 1 || hasNextPage ? (
+              <div className="mt-6 flex items-center justify-center gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={currentPage === 1 || isLoading}
+                  onClick={() => handlePageChange(currentPage - 1)}
+                >
+                  Previous
+                </Button>
+
+                <span className="text-sm font-medium text-slate-600">
+                  Page {currentPage}
+                </span>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={!hasNextPage || isLoading}
+                  onClick={() => handlePageChange(currentPage + 1)}
+                >
+                  Next
+                </Button>
+              </div>
+            ) : null}
           </div>
+
           <div className="lg:sticky lg:top-24 lg:self-start">
             <InteractiveMap
               entities={results}

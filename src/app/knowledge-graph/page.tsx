@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 };
 
 export default async function KnowledgeGraphPage() {
-  const entities = await searchEntities('', {});
+  const { data: entities } = await searchEntities('', {}, 9, 0);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
