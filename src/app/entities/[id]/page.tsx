@@ -1,9 +1,9 @@
-import { notFound } from "next/navigation";
-import { EntityDetailPanel } from "@/components/entity/EntityDetailPanel";
-import { Footer } from "@/components/layout/Footer";
-import { Navbar } from "@/components/layout/Navbar";
-import { InteractiveMap } from "@/components/map/InteractiveMap";
-import { getEntityById, searchEntities } from "@/lib/api";
+import { EntityDetailPanel } from '@/components/entity/EntityDetailPanel';
+import { Footer } from '@/components/layout/Footer';
+import { Navbar } from '@/components/layout/Navbar';
+import { InteractiveMap } from '@/components/map/InteractiveMap';
+import { getEntityById } from '@/lib/api';
+import { notFound } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,8 +18,8 @@ export async function generateMetadata({ params }: EntityPageProps) {
   const entity = await getEntityById(id);
 
   return {
-    title: entity ? `${entity.name} | NusaGraph` : "Entity | NusaGraph",
-    description: entity?.description ?? "Geographic entity detail in NusaGraph",
+    title: entity ? `${entity.name} | NusaGraph` : 'Entity | NusaGraph',
+    description: entity?.description ?? 'Geographic entity detail in NusaGraph',
   };
 }
 

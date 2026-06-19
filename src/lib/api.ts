@@ -85,16 +85,18 @@ SELECT ?place ?geonameId ?name ?countryCode ?timezone ?lat ?long
 WHERE {
   ?place rdf:type gn:Feature ;
          gn:name ?name ;
-         gn:countryCode "ID" ;
          gn:featureClass ?featureClass ;
          gn:featureCode ?featureCode ;
          geo:lat ?lat ;
          geo:long ?long .
 
+  OPTIONAL { ?place gn:countryCode ?countryCode . }
   OPTIONAL { ?place gn:timezone ?timezone . }
   OPTIONAL { ?place gn:population ?population . }
   OPTIONAL { ?place gn:adminCode1 ?adminCode1 . }
   OPTIONAL { ?place gn:adminCode2 ?adminCode2 . }
+
+  FILTER(!BOUND(?countryCode) || ?countryCode = "ID")
 
   ${filterClauses(query, filters)}
 
@@ -105,28 +107,6 @@ WHERE {
 ${orderClause}
 LIMIT ${clampLimit(limit)}
 OFFSET ${Math.max(0, offset)}`;
-}
-
-function buildSearchCountQuery(query: string, filters: SearchFilters) {
-  return `${geonamesPrefixes}
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-
-SELECT (COUNT(DISTINCT ?place) AS ?count)
-WHERE {
-  ?place rdf:type gn:Feature ;
-         gn:name ?name ;
-         gn:countryCode "ID" ;
-         gn:featureClass ?featureClass ;
-         gn:featureCode ?featureCode ;
-         geo:lat ?lat ;
-         geo:long ?long .
-
-  OPTIONAL { ?place gn:population ?population . }
-  OPTIONAL { ?place gn:adminCode1 ?adminCode1 . }
-  OPTIONAL { ?place gn:adminCode2 ?adminCode2 . }
-
-  ${filterClauses(query, filters)}
-}`;
 }
 
 function buildEntityQuery(id: string) {
@@ -154,7 +134,6 @@ export type SearchEntitiesResponse = {
   data: GeographicEntity[];
   hasNextPage: boolean;
 };
-
 
 export async function searchEntities(
   query: string,
@@ -194,21 +173,27 @@ export async function getGraphStats(): Promise<GraphStats> {
   ] = await Promise.all([
     count(`${geonamesPrefixes}
 SELECT (COUNT(?place) AS ?count)
-WHERE { ?place rdf:type gn:Feature ; gn:countryCode "ID" . }`),
+WHERE {
+  ?place rdf:type gn:Feature .
+  OPTIONAL { ?place gn:countryCode ?countryCode . }
+  FILTER(!BOUND(?countryCode) || ?countryCode = "ID")
+}`),
     count(`SELECT (COUNT(*) AS ?count) WHERE { ?s ?p ?o . }`),
     count(`${geonamesPrefixes}
 SELECT (COUNT(?place) AS ?count)
 WHERE {
   ?place rdf:type gn:Feature ;
-         gn:countryCode "ID" ;
          gn:featureCode <https://www.geonames.org/ontology#A.ADM1> .
+  OPTIONAL { ?place gn:countryCode ?countryCode . }
+  FILTER(!BOUND(?countryCode) || ?countryCode = "ID")
 }`),
     count(`${geonamesPrefixes}
 SELECT (COUNT(?place) AS ?count)
 WHERE {
   ?place rdf:type gn:Feature ;
-         gn:countryCode "ID" ;
          gn:featureClass ?featureClass .
+  OPTIONAL { ?place gn:countryCode ?countryCode . }
+  FILTER(!BOUND(?countryCode) || ?countryCode = "ID")
   FILTER(?featureClass IN (
     <https://www.geonames.org/ontology#H>,
     <https://www.geonames.org/ontology#T>
@@ -218,15 +203,17 @@ WHERE {
 SELECT (COUNT(?place) AS ?count)
 WHERE {
   ?place rdf:type gn:Feature ;
-         gn:countryCode "ID" ;
          gn:featureClass <https://www.geonames.org/ontology#A> .
+  OPTIONAL { ?place gn:countryCode ?countryCode . }
+  FILTER(!BOUND(?countryCode) || ?countryCode = "ID")
 }`),
     count(`${geonamesPrefixes}
 SELECT (COUNT(*) AS ?count)
 WHERE {
   ?place rdf:type gn:Feature ;
-         gn:countryCode "ID" ;
          ?relation ?target .
+  OPTIONAL { ?place gn:countryCode ?countryCode . }
+  FILTER(!BOUND(?countryCode) || ?countryCode = "ID")
   FILTER(?relation IN (
     gn:adminCode1,
     gn:adminCode2,
@@ -255,8 +242,9 @@ export async function getSearchFacets(): Promise<SearchFacets> {
 SELECT ?adminCode1 (COUNT(?place) AS ?total)
 WHERE {
   ?place rdf:type gn:Feature ;
-         gn:countryCode "ID" ;
          gn:adminCode1 ?adminCode1 .
+  OPTIONAL { ?place gn:countryCode ?countryCode . }
+  FILTER(!BOUND(?countryCode) || ?countryCode = "ID")
 }
 GROUP BY ?adminCode1
 ORDER BY ?adminCode1`),
@@ -264,8 +252,9 @@ ORDER BY ?adminCode1`),
 SELECT ?featureClassCode (COUNT(?place) AS ?total)
 WHERE {
   ?place rdf:type gn:Feature ;
-         gn:countryCode "ID" ;
          gn:featureClass ?featureClass .
+  OPTIONAL { ?place gn:countryCode ?countryCode . }
+  FILTER(!BOUND(?countryCode) || ?countryCode = "ID")
 
   BIND(REPLACE(STR(?featureClass), "^.*#", "") AS ?featureClassCode)
 }
@@ -305,9 +294,10 @@ export async function getFeatureCodeFacets(
 SELECT ?featureCodeCode (COUNT(?place) AS ?total)
 WHERE {
   ?place rdf:type gn:Feature ;
-         gn:countryCode "ID" ;
          gn:featureClass <https://www.geonames.org/ontology#${safeFeatureClass}> ;
          gn:featureCode ?featureCode .
+  OPTIONAL { ?place gn:countryCode ?countryCode . }
+  FILTER(!BOUND(?countryCode) || ?countryCode = "ID")
 
   BIND(REPLACE(REPLACE(STR(?featureCode), "^.*#", ""), "^[^.]+\\\\.", "") AS ?featureCodeCode)
 }
