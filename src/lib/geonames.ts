@@ -94,18 +94,20 @@ export const entitySelectClause = `SELECT ?place ?geonameId ?name ?alternateName
 WHERE {
   ?place rdf:type gn:Feature ;
          gn:name ?name ;
-         gn:countryCode "ID" ;
          gn:featureClass ?featureClass ;
          gn:featureCode ?featureCode ;
          geo:lat ?lat ;
          geo:long ?long .
 
+  OPTIONAL { ?place gn:countryCode ?countryCode . }
   OPTIONAL { ?place gn:alternateName ?alternateName . }
   OPTIONAL { ?place gn:timezone ?timezone . }
   OPTIONAL { ?place gn:population ?population . }
   OPTIONAL { ?place gn:adminCode1 ?adminCode1 . }
   OPTIONAL { ?place gn:adminCode2 ?adminCode2 . }
   OPTIONAL { ?place gn:parentFeature ?parent . ?parent gn:name ?parentFeature . }
+
+  FILTER(!BOUND(?countryCode) || ?countryCode = "ID")
 
   BIND(REPLACE(STR(?place), "^.*/([0-9]+)/?$", "$1") AS ?geonameId)
   BIND(REPLACE(STR(?featureClass), "^.*#", "") AS ?featureClassCode)

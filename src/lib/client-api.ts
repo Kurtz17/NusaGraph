@@ -1,9 +1,5 @@
-import type {
-  FeatureCodeFacetOption,
-  GeographicEntity,
-  SearchFilters,
-} from '@/types/geographic';
 import type { SearchEntitiesResponse } from '@/lib/api';
+import type { FeatureCodeFacetOption, SearchFilters } from '@/types/geographic';
 
 async function readJson<T>(response: Response): Promise<T> {
   if (!response.ok) {
