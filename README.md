@@ -15,6 +15,8 @@ NusaGraph is a Semantic Web-based geographic exploration portal for Indonesian l
 | Resource | Description |
 | --- | --- |
 | Website URL | [NusaGraph](https://nusagraph.vercel.app/) |
+| Website data scope | Limited dataset for Bandung City |
+| Full dataset access | Run the project locally with the TTL file loaded into Apache Jena Fuseki |
 | TTL dataset folder | [Google Drive TTL Folder](https://drive.google.com/drive/folders/1z1M2eXtZGU6m-QuP1Oc9mTkTjoMYBCdk?usp=sharing) |
 
 ## Table of Contents
@@ -45,6 +47,8 @@ NusaGraph is a Semantic Web-based geographic exploration portal for Indonesian l
 The Semantic Web represents data with clear meaning, structure, and relationships. Instead of treating information as isolated text, Semantic Web data is modeled as connected entities that can be queried and interpreted by machines.
 
 NusaGraph applies this concept to Indonesian geographic data. Places, coordinates, feature classes, feature codes, population values, and administrative identifiers are represented as RDF-based entities. The application uses SPARQL to retrieve and filter those entities, while the frontend presents the results through search cards, maps, statistics, detail pages, and a knowledge graph workspace.
+
+The deployed website uses a limited dataset focused on Bandung City. To explore the complete dataset, run NusaGraph locally and load the full TTL file into Apache Jena Fuseki.
 
 Main capabilities:
 
@@ -121,6 +125,8 @@ The Node.js dependencies are managed through `package.json` and `package-lock.js
    [Google Drive TTL Folder](https://drive.google.com/drive/folders/1z1M2eXtZGU6m-QuP1Oc9mTkTjoMYBCdk?usp=sharing)
 
 4. Load the TTL dataset into Apache Jena Fuseki.
+
+   The deployed website uses a limited Bandung City dataset. Use this local Fuseki setup when working with the full TTL dataset.
 
 5. Create a `.env` file in the project root.
 
