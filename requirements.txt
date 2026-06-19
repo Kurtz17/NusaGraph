@@ -1,0 +1,27 @@
+# NusaGraph project requirements
+# This project is a Next.js and TypeScript application.
+# Install exact npm dependencies with:
+# npm install
+
+Node.js >= 20.9.0
+npm >= 10
+Git
+Apache Jena Fuseki
+RDF/Turtle dataset (.ttl)
+FUSEKI_SPARQL_ENDPOINT
+
+# Main npm dependencies are managed in package.json and package-lock.json.
+next 16.2.6
+react 19.2.4
+react-dom 19.2.4
+leaflet 1.9.4
+react-leaflet 5.0.0
+lucide-react 1.16.0
+
+# Development dependencies
+typescript 5.x
+tailwindcss 4.x
+eslint 9.x
+prettier
+husky
+lint-staged
