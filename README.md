@@ -222,17 +222,33 @@ npm run lint
 
 ## Example Results
 
-This section is intentionally prepared as a placeholder so final screenshots and outputs can be added later.
+### Homepage
 
-| Result Area | Placeholder |
-| --- | --- |
-| Homepage | [Placeholder: add homepage screenshot and short explanation] |
-| Semantic Search | [Placeholder: add search result screenshot and short explanation] |
-| Entity Detail | [Placeholder: add entity detail screenshot and short explanation] |
-| Interactive Map | [Placeholder: add map screenshot and short explanation] |
-| Knowledge Graph | [Placeholder: add graph workspace screenshot and short explanation] |
-| Graph Statistics | [Placeholder: add graph statistics screenshot and short explanation] |
-| SPARQL Explorer | [Placeholder: add SPARQL query result screenshot and short explanation] |
+![NusaGraph homepage](/public/screenshots/homepage.png)
+
+### Semantic Search
+
+![Semantic search results](/public/screenshots/semantic-search.png)
+
+### Entity Detail
+
+![Entity detail page](/public/screenshots/entity-detail.png)
+
+### Interactive Map
+
+![Interactive map visualization](/public/screenshots/interactive-map.png)
+
+### Knowledge Graph
+
+![Knowledge graph workspace](/public/screenshots/knowledge-graph.png)
+
+### Graph Statistics
+
+![Graph statistics page](/public/screenshots/graph-stats.png)
+
+### SPARQL Explorer
+
+![SPARQL Explorer query interface](/public/screenshots/sparql-explorer.png)
 
 ## Updating the TTL Dataset
 
