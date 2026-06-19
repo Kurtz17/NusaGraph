@@ -14,7 +14,7 @@ NusaGraph is a Semantic Web-based geographic exploration portal for Indonesian l
 
 | Resource | Description |
 | --- | --- |
-| Deployed website URL | [Placeholder: add deployed website link] |
+| Website URL | [NusaGraph](https://nusagraph.vercel.app/) |
 | TTL dataset folder | [Google Drive TTL Folder](https://drive.google.com/drive/folders/1z1M2eXtZGU6m-QuP1Oc9mTkTjoMYBCdk?usp=sharing) |
 
 ## Table of Contents
